@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Geography Crossword Challenge</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Geography Crossword Challenge</h1>
+      <p class="tagline">
+        Solve the geographic clues, fill the grid, and uncover the master keyword hidden in the highlighted column.
+      </p>
+    </header>
+
+    <main>
+      <section class="status-bar">
+        <div class="timer">
+          <h2>Timer</h2>
+          <p id="timer-display">05:00</p>
+          <div class="timer-controls">
+            <button id="timer-toggle" type="button">Start</button>
+            <button id="timer-reset" type="button">Reset</button>
+          </div>
+        </div>
+        <div class="master-keyword">
+          <h2>Master Keyword</h2>
+          <p id="master-display" aria-live="polite">_ _ _ _ _ _ _ _</p>
+          <p class="hint">
+            Each solved clue reveals one letter of the master word in the highlighted column.
+          </p>
+        </div>
+      </section>
+
+      <section class="puzzle">
+        <div class="grid-wrapper">
+          <div id="puzzle-grid" class="grid" role="grid" aria-label="Crossword grid"></div>
+          <div class="legend">
+            <span class="legend-square master"></span> Master column &nbsp;
+            <span class="legend-square"></span> Regular cell &nbsp;
+            <span class="legend-square block"></span> Blocked cell
+          </div>
+        </div>
+
+        <div class="clues">
+          <h2>Across Clues</h2>
+          <ol id="across-list"></ol>
+        </div>
+      </section>
+
+      <section class="controls">
+        <button id="check-btn" type="button">Check Answers</button>
+        <button id="clear-btn" type="button">Clear Incorrect Letters</button>
+      </section>
+
+      <section id="feedback" class="feedback" aria-live="polite"></section>
+    </main>
+
+    <footer>
+      <p>
+        Tip: Work through the across clues to reveal the vertical master keyword. The puzzle is themed around well-known geographic features and locations.
+      </p>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
