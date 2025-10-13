@@ -6,52 +6,79 @@
   <title>Kreuzworträtsel – Sprachen</title>
   <style>
     :root {
-      color-scheme: light dark;
-      --accent: #4b7bec;
-      --accent-dark: #3867d6;
-      --bg: #f5f7fb;
-      --text: #1f2933;
-      --grid-border: #cbd5e0;
-      --block: #1f2933;
+      --orange: #ff9f1c;
+      --orange-dark: #ff8500;
+      --light-green: #e3f8c5;
+      --panel-bg: rgba(255, 255, 255, 0.95);
+      --text: #0f172a;
+      --grid-border: #a3d17a;
+      --block: #0f172a;
       font-family: "Segoe UI", Helvetica, Arial, sans-serif;
     }
 
     body {
       margin: 0;
-      padding: 0;
-      background: var(--bg);
+      padding: 40px 0;
+      background: var(--light-green);
       color: var(--text);
-      min-height: 100vh;
       display: flex;
-      align-items: center;
       justify-content: center;
     }
 
     .app {
-      background: rgba(255, 255, 255, 0.92);
-      border-radius: 18px;
-      box-shadow: 0 14px 40px rgba(31, 41, 51, 0.18);
-      max-width: 1024px;
-      width: min(90vw, 960px);
-      padding: 32px;
+      background: var(--panel-bg);
+      border-radius: 20px;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
+      width: min(95vw, 1080px);
+      padding: clamp(20px, 4vw, 36px);
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 32px;
+      grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+      grid-template-areas:
+        "header header"
+        "status status"
+        "grid panel";
+      gap: clamp(18px, 3vw, 32px);
     }
 
     header {
-      grid-column: 1 / -1;
+      grid-area: header;
       display: flex;
       flex-wrap: wrap;
-      align-items: center;
-      gap: 16px;
+      align-items: flex-end;
+      gap: 20px;
       justify-content: space-between;
     }
 
     h1 {
-      font-size: clamp(1.6rem, 3vw, 2.4rem);
       margin: 0;
-      color: var(--accent-dark);
+      font-size: clamp(1.6rem, 3vw, 2.6rem);
+      color: var(--text);
+    }
+
+    .title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .language-picker {
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.95rem;
+    }
+
+    select {
+      border-radius: 999px;
+      border: 2px solid var(--orange);
+      background: #fff9f0;
+      padding: 6px 18px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+      outline: none;
+      cursor: pointer;
     }
 
     .controls {
@@ -62,57 +89,85 @@
 
     .timer-display {
       font-variant-numeric: tabular-nums;
-      font-size: 1.25rem;
-      font-weight: 600;
+      font-size: 1.4rem;
+      font-weight: 700;
     }
 
     button {
       border: none;
       border-radius: 999px;
-      padding: 10px 18px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      background: var(--accent);
+      padding: 10px 22px;
+      font-size: 1rem;
+      font-weight: 700;
+      background: var(--orange);
       color: #fff;
       cursor: pointer;
-      transition: background 0.2s ease, transform 0.2s ease;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      box-shadow: 0 8px 16px rgba(255, 159, 28, 0.32);
     }
 
     button:disabled {
-      background: #a0aec0;
+      background: #cbd5f5;
+      color: rgba(15, 23, 42, 0.45);
+      box-shadow: none;
       cursor: not-allowed;
-      transform: none;
     }
 
     button:not(:disabled):hover {
-      background: var(--accent-dark);
+      background: var(--orange-dark);
       transform: translateY(-1px);
+      box-shadow: 0 12px 24px rgba(255, 159, 28, 0.35);
+    }
+
+    button:not(:disabled):active {
+      transform: translateY(0);
+    }
+
+    .status {
+      grid-area: status;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-radius: 16px;
+      padding: 14px 18px;
+      background: rgba(255, 159, 28, 0.12);
+      font-weight: 600;
+    }
+
+    .status.success {
+      background: rgba(72, 187, 120, 0.28);
+      color: #047857;
+    }
+
+    .status.fail {
+      background: rgba(239, 68, 68, 0.22);
+      color: #b91c1c;
     }
 
     .grid-wrapper {
+      grid-area: grid;
       display: flex;
       justify-content: center;
+      align-items: flex-start;
     }
 
     .crossword {
       display: grid;
-      grid-template-columns: repeat(10, 42px);
-      grid-template-rows: repeat(10, 42px);
       gap: 2px;
       background: var(--grid-border);
-      padding: 2px;
-      border-radius: 12px;
+      padding: 4px;
+      border-radius: 16px;
     }
 
     .cell {
-      width: 42px;
-      height: 42px;
+      width: 46px;
+      height: 46px;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #fff;
+      background: #ffffff;
       position: relative;
-      border-radius: 8px;
+      border-radius: 10px;
       overflow: hidden;
     }
 
@@ -121,16 +176,13 @@
       height: 100%;
       border: none;
       outline: none;
-      text-transform: uppercase;
-      font-size: 1.2rem;
-      text-align: center;
       background: transparent;
+      font-size: 1.25rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      text-align: center;
       color: var(--text);
-    }
-
-    .cell input:disabled {
-      background: rgba(144, 164, 183, 0.15);
-      color: rgba(31, 41, 51, 0.6);
+      caret-color: var(--orange);
     }
 
     .cell.block {
@@ -141,70 +193,106 @@
       position: absolute;
       top: 4px;
       left: 6px;
-      font-size: 0.65rem;
-      font-weight: 600;
-      color: rgba(31, 41, 51, 0.6);
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.88);
+      border-radius: 4px;
+      padding: 0 3px;
     }
 
-    .clues {
+    .panel {
+      grid-area: panel;
       display: flex;
       flex-direction: column;
       gap: 24px;
     }
 
+    .master-card {
+      background: rgba(227, 248, 197, 0.65);
+      border-radius: 16px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border: 2px dashed rgba(255, 159, 28, 0.4);
+    }
+
+    .master-card h2 {
+      margin: 0;
+      font-size: 1.2rem;
+    }
+
+    .master-card p {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: 4px;
+      text-align: center;
+    }
+
+    .solution-button {
+      background: #90ee90;
+      color: #0f172a;
+      box-shadow: 0 6px 14px rgba(144, 238, 144, 0.35);
+    }
+
+    .solution-button:hover:not(:disabled) {
+      background: #7adf7a;
+    }
+
+    .clues {
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 16px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
     .clue-group h2 {
       margin: 0 0 12px 0;
       font-size: 1.1rem;
-      color: var(--accent-dark);
-      border-bottom: 2px solid rgba(56, 103, 214, 0.2);
-      padding-bottom: 6px;
+      color: var(--text);
     }
 
     ol {
       margin: 0;
       padding-left: 20px;
       display: grid;
-      gap: 12px;
+      gap: 10px;
+      font-weight: 500;
     }
 
     li {
-      line-height: 1.35;
+      line-height: 1.45;
     }
 
-    .status {
-      grid-column: 1 / -1;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: rgba(75, 123, 236, 0.12);
-      border-radius: 12px;
-      padding: 14px 18px;
-      font-weight: 600;
-      color: var(--accent-dark);
-    }
-
-    .status.success {
-      background: rgba(16, 185, 129, 0.15);
-      color: #047857;
-    }
-
-    .status.fail {
-      background: rgba(244, 114, 182, 0.18);
-      color: #be185d;
-    }
-
-    @media (max-width: 900px) {
+    @media (max-width: 980px) {
       .app {
         grid-template-columns: 1fr;
-        gap: 24px;
+        grid-template-areas:
+          "header"
+          "status"
+          "panel"
+          "grid";
       }
 
-      .grid-wrapper {
+      header {
+        align-items: flex-start;
+      }
+
+      .panel {
         order: 2;
       }
 
-      .clues {
+      .grid-wrapper {
         order: 3;
+      }
+
+      .controls {
+        width: 100%;
+        justify-content: flex-start;
       }
     }
   </style>
@@ -212,95 +300,237 @@
 <body>
   <main class="app">
     <header>
-      <h1>Kreuzworträtsel: Sprachen-Mix</h1>
+      <div class="title-block">
+        <h1 id="title">Kreuzworträtsel: Deutsch</h1>
+        <label class="language-picker">
+          Sprache wählen:
+          <select id="languageSelect" aria-label="Sprache auswählen">
+            <option value="de">Deutsch</option>
+            <option value="en">English</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
+          </select>
+        </label>
+      </div>
       <div class="controls">
         <span class="timer-display" id="timer">05:00</span>
         <button id="startBtn">Start</button>
         <button id="resetBtn" disabled>Neu starten</button>
       </div>
     </header>
-    <section class="status" id="status">Fülle alle 5 Begriffe in 5 Minuten aus.</section>
+    <section class="status" id="status">Wähle eine Sprache und starte den 5-Minuten-Countdown.</section>
     <div class="grid-wrapper">
-      <div class="crossword" id="crossword"></div>
+      <div class="crossword" id="crossword" aria-live="polite"></div>
     </div>
-    <section class="clues">
-      <div class="clue-group">
-        <h2>Waagrecht</h2>
-        <ol id="across-list"></ol>
+    <aside class="panel">
+      <div class="master-card">
+        <h2>Master-Passwort</h2>
+        <p id="masterPassword">_ – _ – _ – _ – _</p>
+        <button id="solutionBtn" class="solution-button">Lösung anzeigen</button>
       </div>
-      <div class="clue-group">
-        <h2>Senkrecht</h2>
-        <ol id="down-list"></ol>
-      </div>
-    </section>
+      <section class="clues">
+        <div class="clue-group">
+          <h2>Waagrecht</h2>
+          <ol id="across-list"></ol>
+        </div>
+        <div class="clue-group">
+          <h2>Senkrecht</h2>
+          <ol id="down-list"></ol>
+        </div>
+      </section>
+    </aside>
   </main>
   <script>
-    const puzzle = {
-      size: 10,
-      entries: [
-        {
-          number: 1,
-          answer: "HELLO",
-          direction: "across",
-          row: 1,
-          col: 0,
-          clue: "Englisch: Begrüßung. Deutsch: hallo · Spanisch: hola · Französisch: bonjour."
-        },
-        {
-          number: 2,
-          answer: "HALLO",
-          direction: "down",
-          row: 1,
-          col: 0,
-          clue: "Deutsch: Begrüßung. Englisch: hello · Spanisch: hola · Französisch: bonjour."
-        },
-        {
-          number: 3,
-          answer: "HOLA",
-          direction: "down",
-          row: 0,
-          col: 4,
-          clue: "Spanisch: Begrüßung. Deutsch: hallo · Englisch: hello · Französisch: bonjour."
-        },
-        {
-          number: 4,
-          answer: "MERCI",
-          direction: "down",
-          row: 0,
-          col: 1,
-          clue: "Französisch: Danke. Deutsch: danke · Englisch: thank you · Spanisch: gracias."
-        },
-        {
-          number: 5,
-          answer: "AMIGO",
-          direction: "across",
-          row: 3,
-          col: 4,
-          clue: "Spanisch: Freund. Deutsch: Freund · Englisch: friend · Französisch: ami."
-        }
-      ]
-    };
-
-    const grid = Array.from({ length: puzzle.size }, () => Array(puzzle.size).fill(null));
-
-    puzzle.entries.forEach((entry) => {
-      const letters = entry.answer.split("");
-      letters.forEach((letter, index) => {
-        const row = entry.row + (entry.direction === "down" ? index : 0);
-        const col = entry.col + (entry.direction === "across" ? index : 0);
-        if (!grid[row][col]) {
-          grid[row][col] = { solution: letter, number: null };
-        }
-      });
-    });
-
-    // Assign clue numbers to starting cells
-    puzzle.entries.forEach((entry) => {
-      const { row, col, number } = entry;
-      if (grid[row][col]) {
-        grid[row][col].number = number;
+    const puzzles = {
+      de: {
+        title: "Deutsch",
+        size: 7,
+        masterPassword: ["B", "A", "S", "I", "S"],
+        entries: [
+          {
+            number: 1,
+            direction: "across",
+            answer: "BASIS",
+            row: 3,
+            col: 1,
+            clue: "Grundlage jeder Sprache."
+          },
+          {
+            number: 2,
+            direction: "down",
+            answer: "BIBEL",
+            row: 1,
+            col: 1,
+            clue: "Berühmtes Buch voller Geschichten."
+          },
+          {
+            number: 3,
+            direction: "down",
+            answer: "GRAMM",
+            row: 1,
+            col: 2,
+            clue: "Teilwort, das auch in Grammatik steckt."
+          },
+          {
+            number: 4,
+            direction: "down",
+            answer: "LESEN",
+            row: 1,
+            col: 3,
+            clue: "Was du mit Texten machst."
+          },
+          {
+            number: 5,
+            direction: "down",
+            answer: "IDIOM",
+            row: 1,
+            col: 4,
+            clue: "Feste sprachliche Wendung."
+          }
+        ]
+      },
+      en: {
+        title: "English",
+        size: 7,
+        masterPassword: ["L", "E", "V", "E", "L"],
+        entries: [
+          {
+            number: 1,
+            direction: "across",
+            answer: "LEVEL",
+            row: 3,
+            col: 1,
+            clue: "Proficiency stage you aim for."
+          },
+          {
+            number: 2,
+            direction: "down",
+            answer: "RULES",
+            row: 1,
+            col: 1,
+            clue: "Grammar _____ guide usage."
+          },
+          {
+            number: 3,
+            direction: "down",
+            answer: "SPEAK",
+            row: 1,
+            col: 2,
+            clue: "Use your voice to communicate."
+          },
+          {
+            number: 4,
+            direction: "down",
+            answer: "REVUE",
+            row: 1,
+            col: 3,
+            clue: "Stage show mixing spoken and sung numbers."
+          },
+          {
+            number: 5,
+            direction: "down",
+            answer: "THEME",
+            row: 1,
+            col: 4,
+            clue: "Topic explored in a lesson."
+          }
+        ]
+      },
+      es: {
+        title: "Español",
+        size: 7,
+        masterPassword: ["N", "I", "V", "E", "L"],
+        entries: [
+          {
+            number: 1,
+            direction: "across",
+            answer: "NIVEL",
+            row: 3,
+            col: 1,
+            clue: "Meta de tu dominio del idioma."
+          },
+          {
+            number: 2,
+            direction: "down",
+            answer: "TENER",
+            row: 1,
+            col: 1,
+            clue: "Verbo que expresa posesión."
+          },
+          {
+            number: 3,
+            direction: "down",
+            answer: "LEIDO",
+            row: 1,
+            col: 2,
+            clue: "Participio de 'leer'."
+          },
+          {
+            number: 4,
+            direction: "down",
+            answer: "REVES",
+            row: 1,
+            col: 3,
+            clue: "Lo contrario del derecho."
+          },
+          {
+            number: 5,
+            direction: "down",
+            answer: "POETA",
+            row: 1,
+            col: 4,
+            clue: "Autor o autora de versos."
+          }
+        ]
+      },
+      fr: {
+        title: "Français",
+        size: 7,
+        masterPassword: ["L", "I", "V", "R", "E"],
+        entries: [
+          {
+            number: 1,
+            direction: "across",
+            answer: "LIVRE",
+            row: 3,
+            col: 1,
+            clue: "Objet que tu lis pour apprendre."
+          },
+          {
+            number: 2,
+            direction: "down",
+            answer: "ALLER",
+            row: 1,
+            col: 1,
+            clue: "Verbe essentiel pour parler d'un déplacement."
+          },
+          {
+            number: 3,
+            direction: "down",
+            answer: "AVION",
+            row: 1,
+            col: 2,
+            clue: "Moyen de transport qui traverse les langues."
+          },
+          {
+            number: 4,
+            direction: "down",
+            answer: "REVUE",
+            row: 1,
+            col: 3,
+            clue: "Spectacle de numéros parlés et chantés."
+          },
+          {
+            number: 5,
+            direction: "down",
+            answer: "ECRIN",
+            row: 1,
+            col: 4,
+            clue: "Boîte précieuse, comme une langue bien gardée."
+          }
+        ]
       }
-    });
+    };
 
     const crosswordEl = document.getElementById("crossword");
     const acrossList = document.getElementById("across-list");
@@ -309,58 +539,102 @@
     const startBtn = document.getElementById("startBtn");
     const resetBtn = document.getElementById("resetBtn");
     const timerEl = document.getElementById("timer");
+    const titleEl = document.getElementById("title");
+    const languageSelect = document.getElementById("languageSelect");
+    const masterPasswordEl = document.getElementById("masterPassword");
+    const solutionBtn = document.getElementById("solutionBtn");
 
-    const cellInputs = new Map();
-
-    grid.forEach((row, rIndex) => {
-      row.forEach((cell, cIndex) => {
-        const cellEl = document.createElement("div");
-        cellEl.classList.add("cell");
-        if (!cell) {
-          cellEl.classList.add("block");
-        } else {
-          const input = document.createElement("input");
-          input.setAttribute("maxlength", "1");
-          input.dataset.row = rIndex;
-          input.dataset.col = cIndex;
-          input.disabled = true;
-          input.addEventListener("input", (event) => {
-            const value = event.target.value.toUpperCase();
-            event.target.value = value.replace(/[^A-ZÄÖÜ]/g, "").slice(0, 1);
-            checkProgress();
-          });
-          input.addEventListener("focus", (event) => event.target.select());
-          cellInputs.set(`${rIndex}-${cIndex}`, { input, solution: cell.solution });
-          if (cell.number) {
-            const number = document.createElement("span");
-            number.className = "number";
-            number.textContent = cell.number;
-            cellEl.appendChild(number);
-          }
-          cellEl.appendChild(input);
-        }
-        crosswordEl.appendChild(cellEl);
-      });
-    });
-
-    const acrossEntries = puzzle.entries.filter((entry) => entry.direction === "across");
-    const downEntries = puzzle.entries.filter((entry) => entry.direction === "down");
-
-    acrossEntries.forEach((entry) => {
-      const li = document.createElement("li");
-      li.textContent = `${entry.number}. ${entry.clue}`;
-      acrossList.appendChild(li);
-    });
-
-    downEntries.forEach((entry) => {
-      const li = document.createElement("li");
-      li.textContent = `${entry.number}. ${entry.clue}`;
-      downList.appendChild(li);
-    });
-
+    let cellInputs = new Map();
+    let currentPuzzle = puzzles.de;
     let timerId = null;
-    const timeLimit = 5 * 60; // 5 Minuten
+    const timeLimit = 5 * 60;
     let timeRemaining = timeLimit;
+
+    function buildPuzzle(puzzle) {
+      crosswordEl.innerHTML = "";
+      acrossList.innerHTML = "";
+      downList.innerHTML = "";
+      cellInputs = new Map();
+
+      const grid = Array.from({ length: puzzle.size }, () => Array(puzzle.size).fill(null));
+
+      puzzle.entries.forEach((entry) => {
+        const letters = entry.answer.split("");
+        letters.forEach((letter, index) => {
+          const targetRow = entry.row + (entry.direction === "down" ? index : 0);
+          const targetCol = entry.col + (entry.direction === "across" ? index : 0);
+          if (!grid[targetRow][targetCol]) {
+            grid[targetRow][targetCol] = { solution: letter, number: null };
+          }
+        });
+      });
+
+      puzzle.entries.forEach(({ row, col, number }) => {
+        if (grid[row][col]) {
+          grid[row][col].number = number;
+        }
+      });
+
+      crosswordEl.style.gridTemplateColumns = `repeat(${puzzle.size}, 46px)`;
+      crosswordEl.style.gridTemplateRows = `repeat(${puzzle.size}, 46px)`;
+
+      grid.forEach((row, rIndex) => {
+        row.forEach((cell, cIndex) => {
+          const cellEl = document.createElement("div");
+          cellEl.classList.add("cell");
+
+          if (!cell) {
+            cellEl.classList.add("block");
+          } else {
+            const input = document.createElement("input");
+            input.setAttribute("maxlength", "1");
+            input.setAttribute("autocomplete", "off");
+            input.setAttribute("autocapitalize", "characters");
+            input.setAttribute("inputmode", "latin");
+            input.dataset.row = rIndex;
+            input.dataset.col = cIndex;
+            input.disabled = true;
+            input.value = "";
+
+            input.addEventListener("input", (event) => {
+              const value = event.target.value.toLocaleUpperCase("de-DE");
+              event.target.value = value.replace(/[^A-ZÄÖÜẞÑÁÉÍÓÚÀÈÌÒÙÂÊÎÔÛÇ]/gu, "").slice(0, 1);
+              checkProgress();
+            });
+
+            input.addEventListener("focus", (event) => event.target.select());
+
+            cellInputs.set(`${rIndex}-${cIndex}`, { input, solution: cell.solution });
+
+            if (cell.number) {
+              const numberEl = document.createElement("span");
+              numberEl.className = "number";
+              numberEl.textContent = cell.number;
+              cellEl.appendChild(numberEl);
+            }
+
+            cellEl.appendChild(input);
+          }
+
+          crosswordEl.appendChild(cellEl);
+        });
+      });
+
+      const acrossEntries = puzzle.entries.filter((entry) => entry.direction === "across");
+      const downEntries = puzzle.entries.filter((entry) => entry.direction === "down");
+
+      acrossEntries.forEach((entry) => {
+        const li = document.createElement("li");
+        li.textContent = `${entry.number}. ${entry.clue}`;
+        acrossList.appendChild(li);
+      });
+
+      downEntries.forEach((entry) => {
+        const li = document.createElement("li");
+        li.textContent = `${entry.number}. ${entry.clue}`;
+        downList.appendChild(li);
+      });
+    }
 
     function updateTimerDisplay() {
       const minutes = String(Math.floor(timeRemaining / 60)).padStart(2, "0");
@@ -371,9 +645,6 @@
     function enableInputs(enable) {
       cellInputs.forEach(({ input }) => {
         input.disabled = !enable;
-        if (!enable) {
-          input.value = "";
-        }
       });
     }
 
@@ -383,6 +654,18 @@
       });
     }
 
+    function updateMasterPasswordDisplay(reveal = false) {
+      const letters = reveal
+        ? currentPuzzle.masterPassword
+        : currentPuzzle.masterPassword.map(() => "_");
+      masterPasswordEl.textContent = letters.join(" – ");
+    }
+
+    function setInitialStatus() {
+      statusEl.className = "status";
+      statusEl.textContent = `Fülle alle 5 Begriffe in ${currentPuzzle.title} innerhalb von 5 Minuten.`;
+    }
+
     function resetPuzzle() {
       if (timerId) {
         clearInterval(timerId);
@@ -390,11 +673,12 @@
       }
       timeRemaining = timeLimit;
       updateTimerDisplay();
+      clearInputs();
       enableInputs(false);
       startBtn.disabled = false;
       resetBtn.disabled = true;
-      statusEl.className = "status";
-      statusEl.textContent = "Fülle alle 5 Begriffe in 5 Minuten aus.";
+      setInitialStatus();
+      updateMasterPasswordDisplay(false);
     }
 
     function startPuzzle() {
@@ -406,7 +690,6 @@
       statusEl.textContent = "Viel Erfolg!";
       timeRemaining = timeLimit;
       updateTimerDisplay();
-      cellInputs.values().next().value?.input.focus();
       if (timerId) clearInterval(timerId);
       timerId = setInterval(() => {
         timeRemaining -= 1;
@@ -417,6 +700,10 @@
           handleTimeUp();
         }
       }, 1000);
+      const firstCell = cellInputs.values().next();
+      if (!firstCell.done) {
+        firstCell.value.input.focus();
+      }
     }
 
     function handleTimeUp() {
@@ -447,13 +734,42 @@
         statusEl.textContent = "Du bist Superhero! Alles richtig gelöst.";
         resetBtn.disabled = false;
         startBtn.disabled = false;
+        updateMasterPasswordDisplay(true);
       }
+    }
+
+    function showSolution() {
+      cellInputs.forEach(({ input, solution }) => {
+        input.value = solution;
+      });
+      enableInputs(false);
+      if (timerId) {
+        clearInterval(timerId);
+        timerId = null;
+      }
+      statusEl.className = "status success";
+      statusEl.textContent = "Lösung eingeblendet. Du bist Superhero!";
+      startBtn.disabled = false;
+      resetBtn.disabled = false;
+      updateMasterPasswordDisplay(true);
+    }
+
+    function loadPuzzle(key) {
+      currentPuzzle = puzzles[key];
+      titleEl.textContent = `Kreuzworträtsel: ${currentPuzzle.title}`;
+      buildPuzzle(currentPuzzle);
+      resetPuzzle();
     }
 
     startBtn.addEventListener("click", startPuzzle);
     resetBtn.addEventListener("click", resetPuzzle);
+    solutionBtn.addEventListener("click", showSolution);
+    languageSelect.addEventListener("change", (event) => {
+      loadPuzzle(event.target.value);
+    });
 
-    updateTimerDisplay();
+    languageSelect.value = "de";
+    loadPuzzle("de");
   </script>
 </body>
 </html>
