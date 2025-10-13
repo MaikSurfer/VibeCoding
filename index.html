@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Body Mass (BMI) Calculator</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main class="container">
+      <section class="card">
+        <h1>Body Mass (BMI) Calculator</h1>
+        <p class="subtitle">Enter your details to calculate your Body Mass Index.</p>
+
+        <form id="bmiForm" novalidate>
+          <div class="field">
+            <label for="gender">Gender</label>
+            <select id="gender" name="gender" required>
+              <option value="" disabled selected>Select gender</option>
+              <option value="female">Female</option>
+              <option value="male">Male</option>
+              <option value="other">Other / Prefer not to say</option>
+            </select>
+            <div class="hint">BMI categories are the same for adult genders.</div>
+          </div>
+
+          <div class="grid">
+            <div class="field">
+              <label for="weightKg">Weight (kg)</label>
+              <input id="weightKg" name="weightKg" type="number" inputmode="decimal" min="10" max="500" step="0.1" placeholder="e.g. 70" required />
+            </div>
+
+            <div class="field">
+              <label for="heightCm">Height (cm)</label>
+              <input id="heightCm" name="heightCm" type="number" inputmode="decimal" min="50" max="272" step="0.1" placeholder="e.g. 175" required />
+            </div>
+          </div>
+
+          <div class="actions">
+            <button type="submit" class="btn primary">Calculate</button>
+            <button type="reset" class="btn" id="resetBtn" aria-label="Reset form">Reset</button>
+          </div>
+
+          <p class="error" id="formError" role="alert" aria-live="polite" hidden></p>
+        </form>
+
+        <div id="results" class="results" aria-live="polite" hidden>
+          <h2>Your Results</h2>
+          <div class="result-grid">
+            <div>
+              <div class="result-label">BMI</div>
+              <div class="result-value" id="bmiValue">—</div>
+            </div>
+            <div>
+              <div class="result-label">Category</div>
+              <div class="result-value" id="bmiCategory">—</div>
+            </div>
+          </div>
+
+          <div class="range" id="healthyRange" hidden>
+            Healthy weight range for your height: <span id="rangeValue"></span>
+          </div>
+
+          <details class="notes">
+            <summary>Notes</summary>
+            <ul>
+              <li>
+                BMI is a screening tool; it does not directly assess body fat or
+                health. Ask a healthcare professional for personalized advice.
+              </li>
+              <li>
+                Categories are for adults (18+). BMI may misclassify athletes,
+                older adults, and during pregnancy.
+              </li>
+            </ul>
+          </details>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <span>Built with ❤️ — Metric units (kg, cm)</span>
+      </footer>
+    </main>
+
+    <script defer src="./app.js"></script>
+  </body>
+</html>
