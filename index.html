@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kreuzworträtsel – Sprachen</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --accent: #4b7bec;
+      --accent-dark: #3867d6;
+      --bg: #f5f7fb;
+      --text: #1f2933;
+      --grid-border: #cbd5e0;
+      --block: #1f2933;
+      font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .app {
+      background: rgba(255, 255, 255, 0.92);
+      border-radius: 18px;
+      box-shadow: 0 14px 40px rgba(31, 41, 51, 0.18);
+      max-width: 1024px;
+      width: min(90vw, 960px);
+      padding: 32px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+    }
+
+    header {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 16px;
+      justify-content: space-between;
+    }
+
+    h1 {
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      margin: 0;
+      color: var(--accent-dark);
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .timer-display {
+      font-variant-numeric: tabular-nums;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 10px 18px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      background: var(--accent);
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    button:disabled {
+      background: #a0aec0;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    button:not(:disabled):hover {
+      background: var(--accent-dark);
+      transform: translateY(-1px);
+    }
+
+    .grid-wrapper {
+      display: flex;
+      justify-content: center;
+    }
+
+    .crossword {
+      display: grid;
+      grid-template-columns: repeat(10, 42px);
+      grid-template-rows: repeat(10, 42px);
+      gap: 2px;
+      background: var(--grid-border);
+      padding: 2px;
+      border-radius: 12px;
+    }
+
+    .cell {
+      width: 42px;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      position: relative;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .cell input {
+      width: 100%;
+      height: 100%;
+      border: none;
+      outline: none;
+      text-transform: uppercase;
+      font-size: 1.2rem;
+      text-align: center;
+      background: transparent;
+      color: var(--text);
+    }
+
+    .cell input:disabled {
+      background: rgba(144, 164, 183, 0.15);
+      color: rgba(31, 41, 51, 0.6);
+    }
+
+    .cell.block {
+      background: var(--block);
+    }
+
+    .cell .number {
+      position: absolute;
+      top: 4px;
+      left: 6px;
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: rgba(31, 41, 51, 0.6);
+    }
+
+    .clues {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .clue-group h2 {
+      margin: 0 0 12px 0;
+      font-size: 1.1rem;
+      color: var(--accent-dark);
+      border-bottom: 2px solid rgba(56, 103, 214, 0.2);
+      padding-bottom: 6px;
+    }
+
+    ol {
+      margin: 0;
+      padding-left: 20px;
+      display: grid;
+      gap: 12px;
+    }
+
+    li {
+      line-height: 1.35;
+    }
+
+    .status {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(75, 123, 236, 0.12);
+      border-radius: 12px;
+      padding: 14px 18px;
+      font-weight: 600;
+      color: var(--accent-dark);
+    }
+
+    .status.success {
+      background: rgba(16, 185, 129, 0.15);
+      color: #047857;
+    }
+
+    .status.fail {
+      background: rgba(244, 114, 182, 0.18);
+      color: #be185d;
+    }
+
+    @media (max-width: 900px) {
+      .app {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+
+      .grid-wrapper {
+        order: 2;
+      }
+
+      .clues {
+        order: 3;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <h1>Kreuzworträtsel: Sprachen-Mix</h1>
+      <div class="controls">
+        <span class="timer-display" id="timer">05:00</span>
+        <button id="startBtn">Start</button>
+        <button id="resetBtn" disabled>Neu starten</button>
+      </div>
+    </header>
+    <section class="status" id="status">Fülle alle 5 Begriffe in 5 Minuten aus.</section>
+    <div class="grid-wrapper">
+      <div class="crossword" id="crossword"></div>
+    </div>
+    <section class="clues">
+      <div class="clue-group">
+        <h2>Waagrecht</h2>
+        <ol id="across-list"></ol>
+      </div>
+      <div class="clue-group">
+        <h2>Senkrecht</h2>
+        <ol id="down-list"></ol>
+      </div>
+    </section>
+  </main>
+  <script>
+    const puzzle = {
+      size: 10,
+      entries: [
+        {
+          number: 1,
+          answer: "HELLO",
+          direction: "across",
+          row: 1,
+          col: 0,
+          clue: "Englisch: Begrüßung. Deutsch: hallo · Spanisch: hola · Französisch: bonjour."
+        },
+        {
+          number: 2,
+          answer: "HALLO",
+          direction: "down",
+          row: 1,
+          col: 0,
+          clue: "Deutsch: Begrüßung. Englisch: hello · Spanisch: hola · Französisch: bonjour."
+        },
+        {
+          number: 3,
+          answer: "HOLA",
+          direction: "down",
+          row: 0,
+          col: 4,
+          clue: "Spanisch: Begrüßung. Deutsch: hallo · Englisch: hello · Französisch: bonjour."
+        },
+        {
+          number: 4,
+          answer: "MERCI",
+          direction: "down",
+          row: 0,
+          col: 1,
+          clue: "Französisch: Danke. Deutsch: danke · Englisch: thank you · Spanisch: gracias."
+        },
+        {
+          number: 5,
+          answer: "AMIGO",
+          direction: "across",
+          row: 3,
+          col: 4,
+          clue: "Spanisch: Freund. Deutsch: Freund · Englisch: friend · Französisch: ami."
+        }
+      ]
+    };
+
+    const grid = Array.from({ length: puzzle.size }, () => Array(puzzle.size).fill(null));
+
+    puzzle.entries.forEach((entry) => {
+      const letters = entry.answer.split("");
+      letters.forEach((letter, index) => {
+        const row = entry.row + (entry.direction === "down" ? index : 0);
+        const col = entry.col + (entry.direction === "across" ? index : 0);
+        if (!grid[row][col]) {
+          grid[row][col] = { solution: letter, number: null };
+        }
+      });
+    });
+
+    // Assign clue numbers to starting cells
+    puzzle.entries.forEach((entry) => {
+      const { row, col, number } = entry;
+      if (grid[row][col]) {
+        grid[row][col].number = number;
+      }
+    });
+
+    const crosswordEl = document.getElementById("crossword");
+    const acrossList = document.getElementById("across-list");
+    const downList = document.getElementById("down-list");
+    const statusEl = document.getElementById("status");
+    const startBtn = document.getElementById("startBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const timerEl = document.getElementById("timer");
+
+    const cellInputs = new Map();
+
+    grid.forEach((row, rIndex) => {
+      row.forEach((cell, cIndex) => {
+        const cellEl = document.createElement("div");
+        cellEl.classList.add("cell");
+        if (!cell) {
+          cellEl.classList.add("block");
+        } else {
+          const input = document.createElement("input");
+          input.setAttribute("maxlength", "1");
+          input.dataset.row = rIndex;
+          input.dataset.col = cIndex;
+          input.disabled = true;
+          input.addEventListener("input", (event) => {
+            const value = event.target.value.toUpperCase();
+            event.target.value = value.replace(/[^A-ZÄÖÜ]/g, "").slice(0, 1);
+            checkProgress();
+          });
+          input.addEventListener("focus", (event) => event.target.select());
+          cellInputs.set(`${rIndex}-${cIndex}`, { input, solution: cell.solution });
+          if (cell.number) {
+            const number = document.createElement("span");
+            number.className = "number";
+            number.textContent = cell.number;
+            cellEl.appendChild(number);
+          }
+          cellEl.appendChild(input);
+        }
+        crosswordEl.appendChild(cellEl);
+      });
+    });
+
+    const acrossEntries = puzzle.entries.filter((entry) => entry.direction === "across");
+    const downEntries = puzzle.entries.filter((entry) => entry.direction === "down");
+
+    acrossEntries.forEach((entry) => {
+      const li = document.createElement("li");
+      li.textContent = `${entry.number}. ${entry.clue}`;
+      acrossList.appendChild(li);
+    });
+
+    downEntries.forEach((entry) => {
+      const li = document.createElement("li");
+      li.textContent = `${entry.number}. ${entry.clue}`;
+      downList.appendChild(li);
+    });
+
+    let timerId = null;
+    const timeLimit = 5 * 60; // 5 Minuten
+    let timeRemaining = timeLimit;
+
+    function updateTimerDisplay() {
+      const minutes = String(Math.floor(timeRemaining / 60)).padStart(2, "0");
+      const seconds = String(timeRemaining % 60).padStart(2, "0");
+      timerEl.textContent = `${minutes}:${seconds}`;
+    }
+
+    function enableInputs(enable) {
+      cellInputs.forEach(({ input }) => {
+        input.disabled = !enable;
+        if (!enable) {
+          input.value = "";
+        }
+      });
+    }
+
+    function clearInputs() {
+      cellInputs.forEach(({ input }) => {
+        input.value = "";
+      });
+    }
+
+    function resetPuzzle() {
+      if (timerId) {
+        clearInterval(timerId);
+        timerId = null;
+      }
+      timeRemaining = timeLimit;
+      updateTimerDisplay();
+      enableInputs(false);
+      startBtn.disabled = false;
+      resetBtn.disabled = true;
+      statusEl.className = "status";
+      statusEl.textContent = "Fülle alle 5 Begriffe in 5 Minuten aus.";
+    }
+
+    function startPuzzle() {
+      clearInputs();
+      enableInputs(true);
+      startBtn.disabled = true;
+      resetBtn.disabled = false;
+      statusEl.className = "status";
+      statusEl.textContent = "Viel Erfolg!";
+      timeRemaining = timeLimit;
+      updateTimerDisplay();
+      cellInputs.values().next().value?.input.focus();
+      if (timerId) clearInterval(timerId);
+      timerId = setInterval(() => {
+        timeRemaining -= 1;
+        updateTimerDisplay();
+        if (timeRemaining <= 0) {
+          clearInterval(timerId);
+          timerId = null;
+          handleTimeUp();
+        }
+      }, 1000);
+    }
+
+    function handleTimeUp() {
+      enableInputs(false);
+      statusEl.className = "status fail";
+      statusEl.textContent = "Zeit ist um! Versuche es gleich noch einmal.";
+      startBtn.disabled = false;
+      resetBtn.disabled = false;
+    }
+
+    function checkProgress() {
+      let solvedCells = 0;
+      let totalCells = 0;
+      cellInputs.forEach(({ input, solution }) => {
+        totalCells += 1;
+        if (input.value.toUpperCase() === solution) {
+          solvedCells += 1;
+        }
+      });
+
+      if (solvedCells === totalCells && totalCells > 0) {
+        if (timerId) {
+          clearInterval(timerId);
+          timerId = null;
+        }
+        enableInputs(false);
+        statusEl.className = "status success";
+        statusEl.textContent = "Du bist Superhero! Alles richtig gelöst.";
+        resetBtn.disabled = false;
+        startBtn.disabled = false;
+      }
+    }
+
+    startBtn.addEventListener("click", startPuzzle);
+    resetBtn.addEventListener("click", resetPuzzle);
+
+    updateTimerDisplay();
+  </script>
+</body>
+</html>
