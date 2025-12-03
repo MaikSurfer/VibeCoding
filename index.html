@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Memory Master</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <h1>Memory Master</h1>
+      <p class="subtitle">Flip the emoji cards, find all 20 pairs, and chase the champion.</p>
+    </div>
+    <div class="status-panel">
+      <div class="status-box" aria-live="polite">
+        <span class="label">Time</span>
+        <span id="timer">00:00</span>
+      </div>
+      <div class="status-box" aria-live="polite">
+        <span class="label">Moves</span>
+        <span id="moves">0</span>
+      </div>
+      <button id="reset" class="primary">New Game</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="board" aria-label="Memory board">
+      <div id="grid" class="grid" role="grid" aria-live="polite"></div>
+    </section>
+
+    <section class="scoreboard" aria-label="Score board">
+      <div class="scoreboard-header">
+        <h2>Memory Master Scoreboard</h2>
+        <p>Best results stay below the champion. The leader is always <strong>Memory Master</strong>.</p>
+      </div>
+      <ol id="score-list" class="scores"></ol>
+    </section>
+  </main>
+
+  <template id="card-template">
+    <button class="card" type="button" aria-label="Memory card" data-id="">
+      <span class="card-inner">
+        <span class="card-front">?</span>
+        <span class="card-back"></span>
+      </span>
+    </button>
+  </template>
+
+  <div id="overlay" class="overlay hidden" role="dialog" aria-modal="true">
+    <div class="dialog">
+      <h3>Great memory!</h3>
+      <p>You matched all pairs in <span id="final-time">--:--</span> with <span id="final-moves">0</span> moves.</p>
+      <label class="input-row">
+        <span>Save your score as</span>
+        <input id="player-name" type="text" value="Memory Master" maxlength="20">
+      </label>
+      <div class="dialog-actions">
+        <button id="save-score" class="primary">Save result</button>
+        <button id="close-dialog" class="secondary">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
