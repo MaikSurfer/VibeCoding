@@ -93,6 +93,12 @@ const resetSelection = () => {
   secondCard = null;
 };
 
+const ensureTimerRunning = () => {
+  if (!timerInterval) {
+    startTimer();
+  }
+};
+
 const disableBoard = (disabled) => {
   board.forEach((card) => {
     card.button.disabled = disabled || card.matched;
@@ -175,3 +181,58 @@ const setupBoard = () => {
 resetBtn.addEventListener("click", setupBoard);
 renderLeaderboard();
 setupBoard();
+
+const revealPairsShortcut = () => {
+  const unmatchedBySymbol = new Map();
+  board
+    .filter((card) => !card.matched)
+    .forEach((card) => {
+      const existing = unmatchedBySymbol.get(card.symbol) || [];
+      existing.push(card);
+      unmatchedBySymbol.set(card.symbol, existing);
+    });
+
+  let revealed = 0;
+  ensureTimerRunning();
+
+  for (const cards of unmatchedBySymbol.values()) {
+    if (cards.length < 2 || revealed >= 10) continue;
+    cards.slice(0, 2).forEach((card) => {
+      card.matched = true;
+      card.button.classList.add("flipped", "matched");
+    });
+    revealed += 1;
+    matchesFound += 1;
+    if (revealed >= 10) break;
+  }
+
+  if (matchesFound >= totalPairs) {
+    const elapsed = Date.now() - startTime;
+    stopTimer();
+    updateLeaderboard(elapsed);
+    setTimeout(
+      () => alert(`You are a Memory Master! Time: ${formatTime(elapsed)}`),
+      300
+    );
+  }
+};
+
+const pressedKeys = new Set();
+let shortcutActive = false;
+
+document.addEventListener("keydown", (event) => {
+  pressedKeys.add(event.code);
+  const hasShortcut =
+    pressedKeys.has("Space") && pressedKeys.has("KeyA") && !shortcutActive;
+  if (hasShortcut) {
+    shortcutActive = true;
+    revealPairsShortcut();
+  }
+});
+
+document.addEventListener("keyup", (event) => {
+  pressedKeys.delete(event.code);
+  if (event.code === "Space" || event.code === "KeyA") {
+    shortcutActive = false;
+  }
+});

@@ -8,5 +8,6 @@ A simple emoji memory game: find 20 matching pairs as quickly as possible. Your 
 3. The timer starts on your first flip and stops when all pairs are matched.
 4. Finishing a game records your time in the local top 10.
 5. Use **New Game** to reshuffle and start over.
+6. Keyboard shortcut: press **Space + A** together to instantly reveal 10 pairs.
 
 All data is stored in your browser's `localStorage`; clearing site data will reset the leaderboard.
