@@ -219,6 +219,17 @@
       </div>
       <div id="status" class="status" role="status" aria-live="polite">Spiel bereit. Würfle, um loszulegen.</div>
     </section>
+
+    <section class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
+        <div>
+          <h2 style="margin: 0 0 0.25rem;">Top 10 Ergebnisse</h2>
+          <p class="hint" style="margin: 0;">Speichere deine Punkte mit deinem Namen (ein Wort). Höchste Punktzahl oben.</p>
+        </div>
+        <button id="clearScores" class="ghost" type="button">Liste leeren</button>
+      </div>
+      <ol id="scoreboard" style="margin-top: 1rem; padding-left: 1.2rem; display: grid; gap: 0.35rem;"></ol>
+    </section>
   </main>
 
   <script>
@@ -254,6 +265,8 @@
     const submitBtn = document.getElementById("submit");
     const stopBtn = document.getElementById("stop");
     const restartBtn = document.getElementById("restart");
+    const scoreboardList = document.getElementById("scoreboard");
+    const clearScoresBtn = document.getElementById("clearScores");
 
     function shuffle(array) {
       const copy = [...array];
@@ -308,14 +321,21 @@
     }
 
     function drawQuestion() {
-      if (!availableQuestions.length) {
-        refreshQuestions();
-      }
       return availableQuestions.pop();
     }
 
     function rollDice() {
       if (gameOver) return;
+      if (!availableQuestions.length) {
+        setStatus("Keine Fragen mehr übrig. Runde beendet. Sichere deine Punkte oder starte neu.");
+        setState("Beendet");
+        gameOver = true;
+        enableInputs(false);
+        setDice("–");
+        maybeStoreScore();
+        return;
+      }
+
       currentRoll = Math.floor(Math.random() * 6) + 1;
       currentQuestion = drawQuestion();
       setDice(currentRoll);
@@ -333,9 +353,15 @@
         return;
       }
 
-      const userAnswer = answerEl.value.trim().toLowerCase();
+      const userAnswerRaw = answerEl.value.trim();
+      const userAnswer = userAnswerRaw.toLowerCase();
       if (!userAnswer) {
         setStatus("Bitte gib eine Antwort ein.");
+        return;
+      }
+
+      if (userAnswerRaw.includes(" ")) {
+        setStatus("Bitte nur ein Wort ohne Leerzeichen eingeben.");
         return;
       }
 
@@ -356,7 +382,7 @@
       } else {
         score = 0;
         updateScore(score);
-        setStatus("Leider falsch. Alle Punkte wurden gelöscht. Spiel zu Ende. Starte neu!");
+        setStatus(`Leider falsch. Die richtige Antwort ist: ${currentQuestion.answer}. Alle Punkte gelöscht. Spiel zu Ende.`);
         setState("Beendet");
         gameOver = true;
         enableInputs(false);
@@ -371,6 +397,60 @@
       gameOver = true;
       enableInputs(false);
       setDice("–");
+      maybeStoreScore();
+    }
+
+    function loadScores() {
+      try {
+        const saved = localStorage.getItem("quizTopScores");
+        return saved ? JSON.parse(saved) : [];
+      } catch (err) {
+        console.error("Konnte Scores nicht laden", err);
+        return [];
+      }
+    }
+
+    function saveScores(scores) {
+      localStorage.setItem("quizTopScores", JSON.stringify(scores));
+    }
+
+    function renderScores(scores) {
+      scoreboardList.innerHTML = "";
+      if (!scores.length) {
+        const li = document.createElement("li");
+        li.textContent = "Noch keine gespeicherten Ergebnisse.";
+        scoreboardList.appendChild(li);
+        return;
+      }
+
+      scores.forEach(({ name, score: points }) => {
+        const li = document.createElement("li");
+        li.textContent = `${name}: ${points} Punkte`;
+        scoreboardList.appendChild(li);
+      });
+    }
+
+    function addScoreEntry(points) {
+      const name = prompt("Name für die Punkte (ein Wort):")?.trim();
+      if (!name || name.includes(" ")) {
+        setStatus("Punkte nicht gespeichert. Name muss ein Wort sein.");
+        return;
+      }
+
+      const scores = loadScores();
+      scores.push({ name, score: points });
+      scores.sort((a, b) => b.score - a.score);
+      scores.splice(10);
+      saveScores(scores);
+      renderScores(scores);
+      setStatus(`Punkte gespeichert für ${name}.`);
+    }
+
+    function maybeStoreScore() {
+      if (score <= 0) return;
+      if (confirm(`Punkte sichern? Aktuell ${score} Punkte.`)) {
+        addScoreEntry(score);
+      }
     }
 
     rollBtn.addEventListener("click", rollDice);
@@ -382,6 +462,13 @@
       resetGame();
     });
 
+    clearScoresBtn.addEventListener("click", () => {
+      if (confirm("Top 10 Liste wirklich leeren?")) {
+        saveScores([]);
+        renderScores([]);
+      }
+    });
+
     answerEl.addEventListener("keydown", (event) => {
       if (event.key === "Enter") {
         event.preventDefault();
@@ -389,6 +476,7 @@
       }
     });
 
+    renderScores(loadScores());
     resetGame();
   </script>
 </body>
