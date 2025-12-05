@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Würfel-Quiz 6.–8. Klasse</title>
+  <style>
+    :root {
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      color: #1f2933;
+      background: #f5f7fa;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      background: radial-gradient(circle at 20% 20%, #ffffff, #e8eef5 50%, #dce7f2 90%);
+    }
+
+    main {
+      margin: 2rem 1rem;
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+      max-width: 960px;
+      width: 100%;
+      padding: 2rem;
+    }
+
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.7rem;
+      color: #12355b;
+    }
+
+    .pill {
+      background: #12355b;
+      color: #fff;
+      border-radius: 999px;
+      padding: 0.4rem 0.9rem;
+      font-size: 0.9rem;
+      letter-spacing: 0.02em;
+    }
+
+    section {
+      margin-top: 1.5rem;
+    }
+
+    .card {
+      border: 1px solid #e3e8ee;
+      border-radius: 12px;
+      padding: 1.25rem;
+      background: #fbfdff;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+    }
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      padding: 1rem;
+      border-radius: 12px;
+      background: #f0f4f8;
+    }
+
+    .stat-title {
+      font-size: 0.9rem;
+      color: #52606d;
+    }
+
+    .stat-value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #12355b;
+    }
+
+    .question-box {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    label {
+      font-weight: 600;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 0.75rem 0.9rem;
+      border-radius: 10px;
+      border: 1px solid #d0d7e2;
+      font-size: 1rem;
+      transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #3a7afe;
+      box-shadow: 0 0 0 4px rgba(58, 122, 254, 0.18);
+    }
+
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 0.75rem 1.1rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    .primary {
+      background: linear-gradient(135deg, #3a7afe, #0052d4);
+      color: #fff;
+      box-shadow: 0 10px 20px rgba(58, 122, 254, 0.25);
+    }
+
+    .accent {
+      background: #1fb981;
+      color: #fff;
+      box-shadow: 0 10px 20px rgba(31, 185, 129, 0.25);
+    }
+
+    .ghost {
+      background: #eef1f6;
+      color: #334e68;
+    }
+
+    button:not(:disabled):active {
+      transform: translateY(1px) scale(0.99);
+      filter: brightness(0.97);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .status {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 12px;
+      background: #eef4ff;
+      color: #1b3a6f;
+      min-height: 3rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .hint {
+      color: #52606d;
+      font-size: 0.95rem;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <p class="pill">Würfel-Quiz</p>
+        <h1>Fragen für die 6. bis 8. Klasse</h1>
+        <p class="hint">Würfle, beantworte die Frage und sichere dir Punkte. Bei falscher Antwort endet das Spiel.</p>
+      </div>
+      <button id="restart" class="ghost" type="button">Neu starten</button>
+    </header>
+
+    <section class="row">
+      <div class="stat">
+        <span class="stat-title">Aktueller Wurf</span>
+        <span id="dice" class="stat-value">–</span>
+      </div>
+      <div class="stat">
+        <span class="stat-title">Punktestand</span>
+        <span id="score" class="stat-value">0</span>
+      </div>
+      <div class="stat">
+        <span class="stat-title">Status</span>
+        <span id="state" class="stat-value" style="font-size: 1.1rem;">Bereit</span>
+      </div>
+    </section>
+
+    <section class="card question-box">
+      <div>
+        <label for="question">Frage</label>
+        <p id="question" aria-live="polite">Würfle, um eine Frage zu erhalten.</p>
+      </div>
+
+      <label for="answer">Deine Antwort</label>
+      <input id="answer" type="text" autocomplete="off" placeholder="Antwort hier eingeben" />
+
+      <div class="actions">
+        <button id="roll" class="primary" type="button">Würfeln</button>
+        <button id="submit" class="accent" type="button">Antwort prüfen</button>
+        <button id="stop" class="ghost" type="button">Stoppen &amp; Punkte sichern</button>
+      </div>
+      <div id="status" class="status" role="status" aria-live="polite">Spiel bereit. Würfle, um loszulegen.</div>
+    </section>
+  </main>
+
+  <script>
+    const questionPool = [
+      { question: "Wie viele Kontinente gibt es auf der Erde?", answer: "7" },
+      { question: "Welcher Planet ist der dritte von der Sonne?", answer: "Erde" },
+      { question: "Wie nennt man das Ergebnis einer Multiplikation?", answer: "Produkt" },
+      { question: "Wie viele Minuten hat eine Stunde?", answer: "60" },
+      { question: "Welches chemische Symbol hat Wasser?", answer: "H2O" },
+      { question: "Wie viele Seiten hat ein Quadrat?", answer: "4" },
+      { question: "Welcher Ozean ist der größte?", answer: "Pazifik" },
+      { question: "Wie nennt man eine Zahl, die man mit 2 ohne Rest teilen kann?", answer: "Gerade" },
+      { question: "Welcher berühmte Wissenschaftler stellte die Relativitätstheorie auf?", answer: "Einstein" },
+      { question: "Wie viele Grad hat ein rechter Winkel?", answer: "90" },
+      { question: "Wie heißt die Hauptstadt von Frankreich?", answer: "Paris" },
+      { question: "Welches Tier ist das größte auf der Erde?", answer: "Blauwal" },
+      { question: "Wie viele Bundesländer hat Deutschland?", answer: "16" }
+    ];
+
+    let availableQuestions = [];
+    let currentQuestion = null;
+    let currentRoll = null;
+    let score = 0;
+    let gameOver = false;
+
+    const diceEl = document.getElementById("dice");
+    const scoreEl = document.getElementById("score");
+    const stateEl = document.getElementById("state");
+    const questionEl = document.getElementById("question");
+    const answerEl = document.getElementById("answer");
+    const statusEl = document.getElementById("status");
+    const rollBtn = document.getElementById("roll");
+    const submitBtn = document.getElementById("submit");
+    const stopBtn = document.getElementById("stop");
+    const restartBtn = document.getElementById("restart");
+
+    function shuffle(array) {
+      const copy = [...array];
+      for (let i = copy.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function refreshQuestions() {
+      availableQuestions = shuffle(questionPool);
+    }
+
+    function updateScore(value) {
+      scoreEl.textContent = value;
+    }
+
+    function setStatus(message) {
+      statusEl.textContent = message;
+    }
+
+    function setState(text) {
+      stateEl.textContent = text;
+    }
+
+    function setDice(value) {
+      diceEl.textContent = value ?? "–";
+    }
+
+    function enableInputs(enable) {
+      rollBtn.disabled = !enable || gameOver;
+      submitBtn.disabled = !enable || gameOver;
+      stopBtn.disabled = !enable || gameOver;
+      answerEl.disabled = !enable || gameOver;
+    }
+
+    function resetGame() {
+      refreshQuestions();
+      score = 0;
+      currentQuestion = null;
+      currentRoll = null;
+      gameOver = false;
+      updateScore(score);
+      questionEl.textContent = "Würfle, um eine Frage zu erhalten.";
+      answerEl.value = "";
+      setDice("–");
+      setStatus("Spiel bereit. Würfle, um loszulegen.");
+      setState("Bereit");
+      enableInputs(true);
+      answerEl.focus();
+    }
+
+    function drawQuestion() {
+      if (!availableQuestions.length) {
+        refreshQuestions();
+      }
+      return availableQuestions.pop();
+    }
+
+    function rollDice() {
+      if (gameOver) return;
+      currentRoll = Math.floor(Math.random() * 6) + 1;
+      currentQuestion = drawQuestion();
+      setDice(currentRoll);
+      questionEl.textContent = currentQuestion.question;
+      answerEl.value = "";
+      setStatus(`Du hast eine ${currentRoll} gewürfelt. Beantworte die Frage!`);
+      setState("Antworten");
+      answerEl.focus();
+    }
+
+    function checkAnswer() {
+      if (gameOver) return;
+      if (!currentQuestion || currentRoll === null) {
+        setStatus("Bitte zuerst würfeln, um eine Frage zu erhalten.");
+        return;
+      }
+
+      const userAnswer = answerEl.value.trim().toLowerCase();
+      if (!userAnswer) {
+        setStatus("Bitte gib eine Antwort ein.");
+        return;
+      }
+
+      const correct = userAnswer === currentQuestion.answer.toLowerCase();
+      if (correct) {
+        score += currentRoll;
+        updateScore(score);
+        setState("Richtig! Würfeln oder stoppen?");
+        let message = `Richtig! Du erhältst ${currentRoll} Punkte. Aktueller Stand: ${score}.`;
+        if (score > 13) {
+          message += " Du bist wirklich eine Expertin bzw. ein Experte!";
+        }
+        message += " Würfle erneut oder sichere deine Punkte.";
+        setStatus(message);
+        currentQuestion = null;
+        currentRoll = null;
+        setDice("–");
+      } else {
+        score = 0;
+        updateScore(score);
+        setStatus("Leider falsch. Alle Punkte wurden gelöscht. Spiel zu Ende. Starte neu!");
+        setState("Beendet");
+        gameOver = true;
+        enableInputs(false);
+        setDice("–");
+      }
+    }
+
+    function stopGame() {
+      if (gameOver) return;
+      setStatus(`Runde beendet mit ${score} Punkten.`);
+      setState("Beendet");
+      gameOver = true;
+      enableInputs(false);
+      setDice("–");
+    }
+
+    rollBtn.addEventListener("click", rollDice);
+    submitBtn.addEventListener("click", checkAnswer);
+    stopBtn.addEventListener("click", stopGame);
+    restartBtn.addEventListener("click", () => {
+      gameOver = false;
+      enableInputs(true);
+      resetGame();
+    });
+
+    answerEl.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        checkAnswer();
+      }
+    });
+
+    resetGame();
+  </script>
+</body>
+</html>
