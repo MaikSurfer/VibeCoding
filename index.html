@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Memory Master</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="top-bar">
+    <div>
+      <h1>Memory Master</h1>
+      <p>Find all 20 emoji pairs as fast as you can.</p>
+    </div>
+    <div class="controls">
+      <div class="timer" id="timer">00:00</div>
+      <button id="reset">New Game</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="game" id="game"></section>
+
+    <section class="leaderboard">
+      <h2>Top 10 Memory Masters</h2>
+      <ol id="leaderboard"></ol>
+    </section>
+  </main>
+
+  <template id="card-template">
+    <button class="card" aria-label="Memory card">
+      <span class="card-inner">
+        <span class="card-face card-back">❔</span>
+        <span class="card-face card-front"></span>
+      </span>
+    </button>
+  </template>
+
+  <script src="script.js"></script>
+</body>
+</html>
