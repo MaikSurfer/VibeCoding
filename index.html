@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Geschichts- & Geografie-Buchstabensalat</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0 1rem 2rem;
+      background: #f7f7f9;
+      color: #1f2933;
+    }
+
+    main {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      padding: 1.5rem 0 1rem;
+    }
+
+    h1 {
+      margin: 0 0 0.3rem;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.25rem;
+      box-shadow: 0 6px 24px rgba(31, 41, 51, 0.07);
+      margin-bottom: 1rem;
+    }
+
+    .flex-between {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .scramble {
+      font-size: 2rem;
+      letter-spacing: 0.12em;
+      font-weight: 700;
+      text-align: center;
+      margin: 0.5rem 0 0.8rem;
+    }
+
+    .hint {
+      color: #52606d;
+      text-align: center;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.25rem;
+      font-weight: 600;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 0.65rem 0.75rem;
+      border-radius: 10px;
+      border: 1px solid #cbd2d9;
+      font-size: 1rem;
+    }
+
+    input[type="text"]:disabled {
+      background: #f0f4f8;
+      color: #52606d;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      font-weight: 700;
+      transition: transform 120ms ease, box-shadow 120ms ease, background 150ms ease;
+    }
+
+    button.primary {
+      background: linear-gradient(135deg, #5b8def, #3a6de0);
+      color: white;
+      box-shadow: 0 8px 18px rgba(59, 109, 224, 0.35);
+    }
+
+    button.secondary {
+      background: #e4e7eb;
+      color: #1f2933;
+    }
+
+    button:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    button:not(:disabled):active {
+      transform: translateY(1px);
+      box-shadow: none;
+    }
+
+    .status {
+      display: flex;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      background: #f0f4f8;
+      padding: 0.45rem 0.75rem;
+      border-radius: 999px;
+      font-weight: 700;
+      color: #102a43;
+    }
+
+    .timer.warning {
+      color: #b83280;
+    }
+
+    .feedback {
+      margin-top: 0.4rem;
+      min-height: 1.25rem;
+      font-weight: 700;
+      color: #0f609b;
+    }
+
+    .highscores table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .highscores th,
+    .highscores td {
+      padding: 0.5rem;
+      text-align: left;
+      border-bottom: 1px solid #e4e7eb;
+    }
+
+    .muted {
+      color: #52606d;
+      font-style: italic;
+    }
+
+    @media (max-width: 600px) {
+      .scramble {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="pill" aria-live="polite">Thema: Geschichte &amp; Geografie</p>
+      <h1>Buchstabensalat</h1>
+      <p>Finde das richtige Wort innerhalb von 20 Sekunden. Richtig gelöste Wörter bringen 10 Punkte.</p>
+    </header>
+
+    <section class="card" aria-live="polite" aria-atomic="true">
+      <div class="flex-between">
+        <div class="status">
+          <span class="pill" id="score">Punkte: 0</span>
+          <span class="pill timer" id="timer">Zeit: 20s</span>
+          <span class="pill" id="progress">0 / 0</span>
+        </div>
+        <div class="buttons">
+          <button class="secondary" id="reset" type="button">Neu mischen</button>
+          <button class="primary" id="start" type="button">Spiel starten</button>
+        </div>
+      </div>
+
+      <div class="scramble" id="scramble" aria-live="polite">Bereit?</div>
+      <p class="hint" id="hint">Drücke auf „Spiel starten“, um loszulegen.</p>
+
+      <div>
+        <label for="answer">Deine Lösung</label>
+        <input id="answer" type="text" autocomplete="off" disabled />
+        <div class="feedback" id="feedback" aria-live="polite"></div>
+        <div style="margin-top: 0.5rem; display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <button class="primary" id="submit" type="button" disabled>Lösung prüfen</button>
+          <button class="secondary" id="skip" type="button" disabled>Überspringen</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Highscores</h2>
+      <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; margin-bottom: 0.5rem;">
+        <label for="player-name" style="margin: 0;">Spielername</label>
+        <input id="player-name" type="text" placeholder="Dein Name" style="max-width: 240px;" />
+        <button class="primary" id="save-score" type="button" disabled>Punkte speichern</button>
+      </div>
+      <div class="highscores">
+        <table aria-label="Highscore-Tabelle">
+          <thead>
+            <tr><th>Platz</th><th>Name</th><th>Punkte</th></tr>
+          </thead>
+          <tbody id="highscore-rows">
+            <tr><td colspan="3" class="muted">Noch keine Einträge</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const WORDS = [
+      { word: "rom", hint: "Hauptstadt des Römischen Reichs." },
+      { word: "berlin", hint: "Deutsche Hauptstadt." },
+      { word: "amun", hint: "Altägyptischer Gott." },
+      { word: "sahara", hint: "Größte heiße Wüste der Erde." },
+      { word: "nile", hint: "Längster Fluss Afrikas." },
+      { word: "troja", hint: "Legendäre Stadt aus Homers Epen." },
+      { word: "athen", hint: "Geburtsort der Demokratie." },
+      { word: "alpen", hint: "Großes Gebirge in Europa." },
+      { word: "vikinger", hint: "Nordische Seefahrer des Mittelalters." },
+      { word: "suez", hint: "Ägyptischer Kanal zwischen Rotem Meer und Mittelmeer." },
+    ];
+
+    const TIME_LIMIT_SECONDS = 20;
+    const POINTS_PER_WORD = 10;
+    const HIGHSCORE_KEY = "scrambleHighscores";
+
+    let wordOrder = [];
+    let currentIndex = 0;
+    let currentWord = null;
+    let totalPoints = 0;
+    let timerId = null;
+    let timeLeft = TIME_LIMIT_SECONDS;
+    let gameActive = false;
+
+    const scrambleElement = document.getElementById("scramble");
+    const hintElement = document.getElementById("hint");
+    const timerElement = document.getElementById("timer");
+    const scoreElement = document.getElementById("score");
+    const progressElement = document.getElementById("progress");
+    const feedbackElement = document.getElementById("feedback");
+    const answerInput = document.getElementById("answer");
+    const submitBtn = document.getElementById("submit");
+    const skipBtn = document.getElementById("skip");
+    const startBtn = document.getElementById("start");
+    const resetBtn = document.getElementById("reset");
+    const playerNameInput = document.getElementById("player-name");
+    const saveScoreBtn = document.getElementById("save-score");
+    const highscoreRows = document.getElementById("highscore-rows");
+
+    function shuffle(array) {
+      const copy = [...array];
+      for (let i = copy.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function scrambleWord(word) {
+      const letters = word.split("");
+      let scrambled = word;
+      if (new Set(letters).size === 1) {
+        return word;
+      }
+      while (scrambled === word) {
+        scrambled = shuffle(letters).join("");
+      }
+      return scrambled;
+    }
+
+    function updateTimerDisplay() {
+      timerElement.textContent = `Zeit: ${timeLeft}s`;
+      timerElement.classList.toggle("warning", timeLeft <= 5);
+    }
+
+    function updateScoreDisplay() {
+      scoreElement.textContent = `Punkte: ${totalPoints}`;
+      progressElement.textContent = `${Math.min(currentIndex + 1, wordOrder.length)} / ${wordOrder.length}`;
+    }
+
+    function setInputEnabled(enabled) {
+      answerInput.disabled = !enabled;
+      submitBtn.disabled = !enabled;
+      skipBtn.disabled = !enabled;
+      if (enabled) {
+        answerInput.focus();
+      }
+    }
+
+    function startTimer() {
+      clearInterval(timerId);
+      timeLeft = TIME_LIMIT_SECONDS;
+      updateTimerDisplay();
+      timerId = setInterval(() => {
+        timeLeft -= 1;
+        updateTimerDisplay();
+        if (timeLeft <= 0) {
+          clearInterval(timerId);
+          feedbackElement.textContent = "Zeitlimit überschritten! Runde beendet.";
+          endGame();
+        }
+      }, 1000);
+    }
+
+    function loadWord() {
+      if (currentIndex >= wordOrder.length) {
+        endGame();
+        return;
+      }
+
+      currentWord = wordOrder[currentIndex];
+      scrambleElement.textContent = scrambleWord(currentWord.word);
+      hintElement.textContent = currentWord.hint;
+      feedbackElement.textContent = "";
+      answerInput.value = "";
+      setInputEnabled(true);
+      startTimer();
+      updateScoreDisplay();
+    }
+
+    function handleSubmit() {
+      if (!gameActive || !currentWord) return;
+      const guess = answerInput.value.trim().toLowerCase();
+      if (!guess) return;
+
+      if (guess === currentWord.word.toLowerCase()) {
+        totalPoints += POINTS_PER_WORD;
+        feedbackElement.textContent = "Richtig! +10 Punkte";
+      } else {
+        feedbackElement.textContent = `Leider falsch. Gesucht war "${currentWord.word}".`;
+      }
+
+      currentIndex += 1;
+      loadWord();
+    }
+
+    function endGame() {
+      clearInterval(timerId);
+      gameActive = false;
+      setInputEnabled(false);
+      scrambleElement.textContent = "Spiel beendet";
+      hintElement.textContent = "Gib deinen Namen ein und sichere deine Punkte.";
+      startBtn.disabled = false;
+      saveScoreBtn.disabled = false;
+      feedbackElement.textContent = feedbackElement.textContent || "Runde abgeschlossen.";
+      updateScoreDisplay();
+    }
+
+    function startGame() {
+      wordOrder = shuffle(WORDS);
+      currentIndex = 0;
+      totalPoints = 0;
+      gameActive = true;
+      startBtn.disabled = true;
+      saveScoreBtn.disabled = true;
+      feedbackElement.textContent = "Viel Erfolg!";
+      progressElement.textContent = `0 / ${wordOrder.length}`;
+      loadWord();
+    }
+
+    function resetGame() {
+      clearInterval(timerId);
+      gameActive = false;
+      currentWord = null;
+      scrambleElement.textContent = "Bereit?";
+      hintElement.textContent = "Drücke auf „Spiel starten“, um loszulegen.";
+      feedbackElement.textContent = "";
+      answerInput.value = "";
+      totalPoints = 0;
+      currentIndex = 0;
+      timeLeft = TIME_LIMIT_SECONDS;
+      updateTimerDisplay();
+      updateScoreDisplay();
+      setInputEnabled(false);
+      startBtn.disabled = false;
+      saveScoreBtn.disabled = true;
+    }
+
+    function loadHighscores() {
+      const stored = localStorage.getItem(HIGHSCORE_KEY);
+      if (!stored) return [];
+      try {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          return parsed;
+        }
+      } catch (error) {
+        console.error("Konnte Highscores nicht laden", error);
+      }
+      return [];
+    }
+
+    function saveHighscores(entries) {
+      localStorage.setItem(HIGHSCORE_KEY, JSON.stringify(entries));
+    }
+
+    function renderHighscores() {
+      const highscores = loadHighscores();
+      highscoreRows.innerHTML = "";
+
+      if (highscores.length === 0) {
+        highscoreRows.innerHTML = '<tr><td colspan="3" class="muted">Noch keine Einträge</td></tr>';
+        return;
+      }
+
+      highscores.forEach((entry, index) => {
+        const row = document.createElement("tr");
+        const placeCell = document.createElement("td");
+        placeCell.textContent = index + 1;
+        const nameCell = document.createElement("td");
+        nameCell.textContent = entry.name || "Unbekannt";
+        const scoreCell = document.createElement("td");
+        scoreCell.textContent = entry.score;
+        row.append(placeCell, nameCell, scoreCell);
+        highscoreRows.append(row);
+      });
+    }
+
+    function persistScore() {
+      const name = (playerNameInput.value || "Unbekannt").trim();
+      const highscores = loadHighscores();
+      highscores.push({ name, score: totalPoints });
+      const sorted = highscores.sort((a, b) => b.score - a.score).slice(0, 20);
+      saveHighscores(sorted);
+      renderHighscores();
+      saveScoreBtn.disabled = true;
+    }
+
+    submitBtn.addEventListener("click", handleSubmit);
+    answerInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        handleSubmit();
+      }
+    });
+    skipBtn.addEventListener("click", () => {
+      if (!gameActive) return;
+      feedbackElement.textContent = "Übersprungen.";
+      currentIndex += 1;
+      loadWord();
+    });
+    startBtn.addEventListener("click", startGame);
+    resetBtn.addEventListener("click", resetGame);
+    saveScoreBtn.addEventListener("click", persistScore);
+
+    renderHighscores();
+    updateTimerDisplay();
+    updateScoreDisplay();
+    setInputEnabled(false);
+  </script>
+</body>
+</html>

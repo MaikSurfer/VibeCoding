@@ -16,3 +16,8 @@ python game.py
 ```
 
 Die Highscore-Tabelle wird in der Datei `high_scores.json` im Projektordner gespeichert.
+
+## Im Browser spielen
+
+Öffne einfach die Datei `index.html` in deinem Browser. Das Spiel läuft vollständig im Frontend,
+inklusive Zeitlimit, Punktevergabe und lokal gespeicherter Highscore-Tabelle (Local Storage).
