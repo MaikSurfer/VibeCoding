@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agents in Love</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Welcome to Agents in Love!</h1>
+        <nav>
+            <ul>
+                <li><a href="#onboarding">Onboarding</a></li>
+                <li><a href="#profiles">Agent Profiles</a></li>
+                <li><a href="#matching">Matching Interface</a></li>
+                <li><a href="#faqs">FAQs</a></li>
+                <li><a href="#share">Share</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section id="onboarding">
+            <h2>Onboarding</h2>
+            <p>Join us and find your perfect match! Fill out the onboarding questionnaire to get started.</p>
+            <form>
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+                <button type="submit">Start</button>
+            </form>
+        </section>
+
+        <section id="profiles">
+            <h2>Agent Profiles</h2>
+            <div class="profile">
+                <h3>Agent Jane Doe</h3>
+                <p>Expert in matchmaking with a personal touch.</p>
+            </div>
+            <div class="profile">
+                <h3>Agent John Smith</h3>
+                <p>Specialist in unique connections and relationship building.</p>
+            </div>
+        </section>
+
+        <section id="matching">
+            <h2>Matching Interface</h2>
+            <p>Find your match based on your preferences!</p>
+            <form>
+                <label for="interests">Interests:</label>
+                <input type="text" id="interests" name="interests" placeholder="E.g., hiking, music" required>
+                <button type="submit">Match Me!</button>
+            </form>
+        </section>
+
+        <section id="faqs">
+            <h2>FAQs</h2>
+            <ul>
+                <li>How does the matching process work?</li>
+                <li>What information is required during onboarding?</li>
+                <li>Can I change my preferences later?</li>
+            </ul>
+        </section>
+
+        <section id="share">
+            <h2>Share with Friends</h2>
+            <p>Let your friends know about Agents in Love!</p>
+            <button onclick="shareOnSocialMedia()">Share on Social Media</button>
+            <script>
+                function shareOnSocialMedia() {
+                    // Implement social sharing code
+                    alert('Share this site via your social media!');
+                }
+            </script>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2026 Agents in Love</p>
+    </footer>
+</body>
+</html>
