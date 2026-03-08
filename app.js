@@ -13,7 +13,7 @@ const ui = {
 };
 
 const state = {
-  currentUser: null,
+  currentUser: "Guest",
   money: 0,
   flowers: 0,
   machineLevel: 1,
@@ -22,23 +22,8 @@ const state = {
   selectedCardTier: 1,
 };
 
-const users = JSON.parse(localStorage.getItem("wday_users") || "{}");
 let flowerMeshes = [];
 let renderer, scene, camera, raycaster, mouse;
-let ground;
-
-function saveUserState() {
-  if (!state.currentUser) return;
-  const payload = {
-    money: state.money,
-    flowers: state.flowers,
-    machineLevel: state.machineLevel,
-    fields: state.fields,
-    ownedCards: [...state.ownedCards],
-  };
-  users[state.currentUser] = { ...(users[state.currentUser] || {}), save: payload };
-  localStorage.setItem("wday_users", JSON.stringify(users));
-}
 
 function setMsg(el, text) {
   el.textContent = text;
@@ -54,43 +39,24 @@ function updateUI() {
   ui.tier.textContent = Math.min(3, Math.floor(state.money / 90) + 1);
 }
 
-function auth(type, username, password) {
-  if (!username || !password) return;
-  if (type === "register") {
-    if (users[username]) return setMsg(authMsg, "Username already exists.");
-    users[username] = { password, save: null };
-    localStorage.setItem("wday_users", JSON.stringify(users));
-    setMsg(authMsg, "Registered! Please login.");
+function startGame(playerName) {
+  if (!playerName) {
+    setMsg(authMsg, "Please enter your name to start.");
     return;
   }
 
-  const user = users[username];
-  if (!user || user.password !== password) return setMsg(authMsg, "Invalid login.");
-
-  state.currentUser = username;
-  if (user.save) {
-    state.money = user.save.money;
-    state.flowers = user.save.flowers;
-    state.machineLevel = user.save.machineLevel;
-    state.fields = user.save.fields;
-    state.ownedCards = new Set(user.save.ownedCards);
-  }
+  state.currentUser = playerName;
   authPanel.classList.add("hidden");
   gamePanel.classList.remove("hidden");
   updateUI();
   boot3D();
-  setMsg(gameMsg, `Welcome ${username}! Grow love-filled flowers 🌷`);
+  setMsg(gameMsg, `Welcome ${playerName}! Grow love-filled flowers 🌷`);
 }
 
-document.getElementById("registerForm").addEventListener("submit", (e) => {
+document.getElementById("startForm").addEventListener("submit", (e) => {
   e.preventDefault();
-  auth("register", document.getElementById("regUser").value.trim(), document.getElementById("regPass").value);
-  e.target.reset();
-});
-
-document.getElementById("loginForm").addEventListener("submit", (e) => {
-  e.preventDefault();
-  auth("login", document.getElementById("logUser").value.trim(), document.getElementById("logPass").value);
+  const playerName = document.getElementById("playerInputName").value.trim();
+  startGame(playerName);
   e.target.reset();
 });
 
@@ -143,7 +109,7 @@ function boot3D() {
   sun.position.set(5, 8, 3);
   scene.add(sun);
 
-  ground = new THREE.Mesh(
+  const ground = new THREE.Mesh(
     new THREE.BoxGeometry(10, 0.4, 8),
     new THREE.MeshStandardMaterial({ color: 0xa8e6a1 })
   );
@@ -162,13 +128,13 @@ function boot3D() {
 
     const picked = intersects[0].object.parent;
     if (!picked.userData.bloom) return;
+
     picked.userData.bloom = false;
     picked.visible = false;
 
     state.flowers += 1;
     state.money += 5 + state.machineLevel;
     updateUI();
-    saveUserState();
 
     setTimeout(() => {
       picked.userData.bloom = true;
@@ -193,15 +159,19 @@ function boot3D() {
     renderer.render(scene, camera);
     requestAnimationFrame(animate);
   }
+
   animate();
 }
 
 function spend(cost, onSuccess) {
-  if (state.money < cost) return setMsg(gameMsg, `Need $${cost}. Keep harvesting!`);
+  if (state.money < cost) {
+    setMsg(gameMsg, `Need $${cost}. Keep harvesting!`);
+    return;
+  }
+
   state.money -= cost;
   onSuccess();
   updateUI();
-  saveUserState();
 }
 
 document.getElementById("upgradeMachine").onclick = () => {
@@ -235,7 +205,11 @@ document.querySelectorAll(".buyCard").forEach((btn) => {
     const costs = { 1: 30, 2: 90, 3: 160 };
     const lockByMoney = { 1: 0, 2: 120, 3: 220 };
 
-    if (state.money < lockByMoney[tier]) return setMsg(gameMsg, `Reach $${lockByMoney[tier]} lifetime money to unlock Tier ${tier}.`);
+    if (state.money < lockByMoney[tier]) {
+      setMsg(gameMsg, `Reach $${lockByMoney[tier]} to unlock Tier ${tier}.`);
+      return;
+    }
+
     spend(costs[tier], () => {
       state.ownedCards.add(tier);
       state.selectedCardTier = tier;
@@ -247,14 +221,24 @@ document.querySelectorAll(".buyCard").forEach((btn) => {
 document.getElementById("sendWish").onclick = () => {
   const name = document.getElementById("toName").value.trim();
   const wish = document.getElementById("wishText").value.trim();
-  if (!name || !wish) return setMsg(gameMsg, "Please enter name and your wish.");
-  if (!state.ownedCards.size) return setMsg(gameMsg, "Buy a greeting card tier first.");
+
+  if (!name || !wish) {
+    setMsg(gameMsg, "Please enter name and your wish.");
+    return;
+  }
+
+  if (!state.ownedCards.size) {
+    setMsg(gameMsg, "Buy a greeting card tier first.");
+    return;
+  }
 
   const tier = state.selectedCardTier;
   const card = document.getElementById("greetingCard");
   const body = document.getElementById("cardBody");
+
   card.className = `greeting-card tier-${tier}`;
-  body.textContent = `To ${name}: ${wish}`;
   card.classList.remove("hidden");
+  body.textContent = `To ${name}: ${wish}`;
+
   setMsg(gameMsg, "Your cute e-greeting card is ready! 💖");
 };
