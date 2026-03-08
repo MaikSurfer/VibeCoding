@@ -1,9 +1,9 @@
-import * as THREE from "https://unpkg.com/three@0.161.0/build/three.module.js";
-
 const authPanel = document.getElementById("authPanel");
 const gamePanel = document.getElementById("gamePanel");
 const authMsg = document.getElementById("authMsg");
 const gameMsg = document.getElementById("gameMsg");
+const fallbackArea = document.getElementById("fallbackArea");
+const fallbackHarvest = document.getElementById("fallbackHarvest");
 
 const ui = {
   playerName: document.getElementById("playerName"),
@@ -24,6 +24,7 @@ const state = {
 
 let flowerMeshes = [];
 let renderer, scene, camera, raycaster, mouse;
+let THREE_LIB = null;
 
 function setMsg(el, text) {
   el.textContent = text;
@@ -39,7 +40,13 @@ function updateUI() {
   ui.tier.textContent = Math.min(3, Math.floor(state.money / 90) + 1);
 }
 
-function startGame(playerName) {
+function harvestFlower() {
+  state.flowers += 1;
+  state.money += 5 + state.machineLevel;
+  updateUI();
+}
+
+async function startGame(playerName) {
   if (!playerName) {
     setMsg(authMsg, "Please enter your name to start.");
     return;
@@ -49,28 +56,33 @@ function startGame(playerName) {
   authPanel.classList.add("hidden");
   gamePanel.classList.remove("hidden");
   updateUI();
-  boot3D();
+  await boot3D();
   setMsg(gameMsg, `Welcome ${playerName}! Grow love-filled flowers 🌷`);
 }
 
-document.getElementById("startForm").addEventListener("submit", (e) => {
+document.getElementById("startForm").addEventListener("submit", async (e) => {
   e.preventDefault();
   const playerName = document.getElementById("playerInputName").value.trim();
-  startGame(playerName);
+  await startGame(playerName);
   e.target.reset();
 });
 
+fallbackHarvest.addEventListener("click", () => {
+  harvestFlower();
+  setMsg(gameMsg, "You harvested a flower in simple mode 🌼");
+});
+
 function createFlower(x, z) {
-  const group = new THREE.Group();
-  const stem = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.05, 0.06, 0.65),
-    new THREE.MeshStandardMaterial({ color: 0x42b94a })
+  const group = new THREE_LIB.Group();
+  const stem = new THREE_LIB.Mesh(
+    new THREE_LIB.CylinderGeometry(0.05, 0.06, 0.65),
+    new THREE_LIB.MeshStandardMaterial({ color: 0x42b94a })
   );
   stem.position.y = 0.33;
 
-  const petals = new THREE.Mesh(
-    new THREE.SphereGeometry(0.23, 16, 16),
-    new THREE.MeshStandardMaterial({ color: new THREE.Color(`hsl(${Math.random() * 60 + 310},80%,70%)`) })
+  const petals = new THREE_LIB.Mesh(
+    new THREE_LIB.SphereGeometry(0.23, 16, 16),
+    new THREE_LIB.MeshStandardMaterial({ color: new THREE_LIB.Color(`hsl(${Math.random() * 60 + 310},80%,70%)`) })
   );
   petals.position.y = 0.7;
 
@@ -90,77 +102,86 @@ function rebuildFlowers() {
   }
 }
 
-function boot3D() {
+async function boot3D() {
   if (renderer) return;
   const canvas = document.getElementById("farm3d");
-  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-  renderer.setPixelRatio(devicePixelRatio);
-  scene = new THREE.Scene();
 
-  camera = new THREE.PerspectiveCamera(58, 1, 0.1, 100);
-  camera.position.set(4.8, 5.5, 7.8);
-  camera.lookAt(0, 0.5, 0);
+  try {
+    if (!THREE_LIB) {
+      THREE_LIB = await import("https://unpkg.com/three@0.161.0/build/three.module.js");
+    }
 
-  raycaster = new THREE.Raycaster();
-  mouse = new THREE.Vector2();
+    renderer = new THREE_LIB.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(devicePixelRatio);
+    scene = new THREE_LIB.Scene();
 
-  scene.add(new THREE.AmbientLight(0xffffff, 0.9));
-  const sun = new THREE.DirectionalLight(0xfff2d9, 1.1);
-  sun.position.set(5, 8, 3);
-  scene.add(sun);
+    camera = new THREE_LIB.PerspectiveCamera(58, 1, 0.1, 100);
+    camera.position.set(4.8, 5.5, 7.8);
+    camera.lookAt(0, 0.5, 0);
 
-  const ground = new THREE.Mesh(
-    new THREE.BoxGeometry(10, 0.4, 8),
-    new THREE.MeshStandardMaterial({ color: 0xa8e6a1 })
-  );
-  ground.position.y = -0.2;
-  scene.add(ground);
+    raycaster = new THREE_LIB.Raycaster();
+    mouse = new THREE_LIB.Vector2();
 
-  rebuildFlowers();
+    scene.add(new THREE_LIB.AmbientLight(0xffffff, 0.9));
+    const sun = new THREE_LIB.DirectionalLight(0xfff2d9, 1.1);
+    sun.position.set(5, 8, 3);
+    scene.add(sun);
 
-  canvas.addEventListener("click", (e) => {
-    const rect = canvas.getBoundingClientRect();
-    mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-    mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-    raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObjects(flowerMeshes, true);
-    if (!intersects.length) return;
+    const ground = new THREE_LIB.Mesh(
+      new THREE_LIB.BoxGeometry(10, 0.4, 8),
+      new THREE_LIB.MeshStandardMaterial({ color: 0xa8e6a1 })
+    );
+    ground.position.y = -0.2;
+    scene.add(ground);
 
-    const picked = intersects[0].object.parent;
-    if (!picked.userData.bloom) return;
+    rebuildFlowers();
 
-    picked.userData.bloom = false;
-    picked.visible = false;
+    canvas.addEventListener("click", (e) => {
+      const rect = canvas.getBoundingClientRect();
+      mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObjects(flowerMeshes, true);
+      if (!intersects.length) return;
 
-    state.flowers += 1;
-    state.money += 5 + state.machineLevel;
-    updateUI();
+      const picked = intersects[0].object.parent;
+      if (!picked.userData.bloom) return;
 
-    setTimeout(() => {
-      picked.userData.bloom = true;
-      picked.visible = true;
-    }, 1700);
-  });
+      picked.userData.bloom = false;
+      picked.visible = false;
+      harvestFlower();
 
-  function resize() {
-    const w = canvas.clientWidth;
-    const h = canvas.clientHeight;
-    renderer.setSize(w, h, false);
-    camera.aspect = w / h;
-    camera.updateProjectionMatrix();
-  }
-
-  function animate() {
-    resize();
-    flowerMeshes.forEach((f, i) => {
-      f.rotation.y += 0.005;
-      f.position.y = Math.sin(performance.now() * 0.001 + i) * 0.04;
+      setTimeout(() => {
+        picked.userData.bloom = true;
+        picked.visible = true;
+      }, 1700);
     });
-    renderer.render(scene, camera);
-    requestAnimationFrame(animate);
-  }
 
-  animate();
+    function resize() {
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+
+    function animate() {
+      resize();
+      flowerMeshes.forEach((f, i) => {
+        f.rotation.y += 0.005;
+        f.position.y = Math.sin(performance.now() * 0.001 + i) * 0.04;
+      });
+      renderer.render(scene, camera);
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  } catch (error) {
+    console.warn("3D mode unavailable, using fallback mode:", error);
+    canvas.classList.add("hidden");
+    fallbackArea.classList.remove("hidden");
+    setMsg(gameMsg, "3D not available here, but you can still play in simple mode 🌸");
+  }
 }
 
 function spend(cost, onSuccess) {
@@ -184,17 +205,19 @@ document.getElementById("upgradeMachine").onclick = () => {
 document.getElementById("buyField").onclick = () => {
   spend(70, () => {
     state.fields += 1;
-    rebuildFlowers();
+    if (scene) rebuildFlowers();
     setMsg(gameMsg, "New field unlocked with extra flowers.");
   });
 };
 
 document.getElementById("magicLove").onclick = () => {
   spend(100, () => {
-    flowerMeshes.forEach((f) => {
-      f.visible = true;
-      f.userData.bloom = true;
-    });
+    if (flowerMeshes.length) {
+      flowerMeshes.forEach((f) => {
+        f.visible = true;
+        f.userData.bloom = true;
+      });
+    }
     setMsg(gameMsg, "Love magic cast! Every flower blooms again ✨");
   });
 };

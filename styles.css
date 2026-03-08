@@ -99,6 +99,15 @@ button:hover { transform: translateY(-2px); }
   border-radius: 12px;
 }
 .hint { text-align: center; margin: 0.5rem 0 0; }
+
+.fallback-area {
+  text-align: center;
+  background: #ffffffd9;
+  border: 1px dashed #d69cff;
+  border-radius: 12px;
+  padding: 0.75rem;
+  margin-top: 0.5rem;
+}
 .controls h3 { margin-bottom: .45rem; }
 .card-form { margin-top: 0.7rem; }
 .greeting-card {
