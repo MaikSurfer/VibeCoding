@@ -1,82 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agents in Love</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bloom & Bless | Women's Day 3D Farm Game</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700&family=Quicksand:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <header>
-        <h1>Welcome to Agents in Love!</h1>
-        <nav>
-            <ul>
-                <li><a href="#onboarding">Onboarding</a></li>
-                <li><a href="#profiles">Agent Profiles</a></li>
-                <li><a href="#matching">Matching Interface</a></li>
-                <li><a href="#faqs">FAQs</a></li>
-                <li><a href="#share">Share</a></li>
-            </ul>
-        </nav>
-    </header>
-    <main>
-        <section id="onboarding">
-            <h2>Onboarding</h2>
-            <p>Join us and find your perfect match! Fill out the onboarding questionnaire to get started.</p>
-            <form>
-                <label for="name">Name:</label>
-                <input type="text" id="name" name="name" required>
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required>
-                <button type="submit">Start</button>
-            </form>
-        </section>
+  <div class="bg-hearts"></div>
+  <header class="app-header">
+    <h1>🌸 Bloom & Bless</h1>
+    <p>Cute 3D Women's Day Flower Farm Adventure</p>
+  </header>
 
-        <section id="profiles">
-            <h2>Agent Profiles</h2>
-            <div class="profile">
-                <h3>Agent Jane Doe</h3>
-                <p>Expert in matchmaking with a personal touch.</p>
-            </div>
-            <div class="profile">
-                <h3>Agent John Smith</h3>
-                <p>Specialist in unique connections and relationship building.</p>
-            </div>
-        </section>
+  <main class="layout">
+    <section class="panel auth-panel" id="authPanel">
+      <h2>Start Playing</h2>
+      <p>Enter your name and jump into the farm. No registration and no data storage.</p>
+      <form id="startForm" class="start-form">
+        <input id="playerInputName" type="text" placeholder="Your name" required />
+        <button type="submit">Play Now 💐</button>
+      </form>
+      <p id="authMsg" class="msg"></p>
+    </section>
 
-        <section id="matching">
-            <h2>Matching Interface</h2>
-            <p>Find your match based on your preferences!</p>
-            <form>
-                <label for="interests">Interests:</label>
-                <input type="text" id="interests" name="interests" placeholder="E.g., hiking, music" required>
-                <button type="submit">Match Me!</button>
-            </form>
-        </section>
+    <section class="panel game-panel hidden" id="gamePanel">
+      <div class="status-bar">
+        <span>👤 <strong id="playerName">Guest</strong></span>
+        <span>💰 Money: <strong id="money">0</strong></span>
+        <span>🌼 Flowers: <strong id="flowers">0</strong></span>
+        <span>⭐ Tier: <strong id="tier">1</strong></span>
+      </div>
 
-        <section id="faqs">
-            <h2>FAQs</h2>
-            <ul>
-                <li>How does the matching process work?</li>
-                <li>What information is required during onboarding?</li>
-                <li>Can I change my preferences later?</li>
-            </ul>
-        </section>
+      <div class="game-grid">
+        <div class="canvas-wrap">
+          <canvas id="farm3d"></canvas>
+          <div id="fallbackArea" class="fallback-area hidden">
+            <p>Simple mode: tap harvest to keep playing 🌼</p>
+            <button id="fallbackHarvest" type="button">Harvest Flower</button>
+          </div>
+          <p class="hint">Click blooming flowers in the 3D farm to harvest.</p>
+        </div>
 
-        <section id="share">
-            <h2>Share with Friends</h2>
-            <p>Let your friends know about Agents in Love!</p>
-            <button onclick="shareOnSocialMedia()">Share on Social Media</button>
-            <script>
-                function shareOnSocialMedia() {
-                    // Implement social sharing code
-                    alert('Share this site via your social media!');
-                }
-            </script>
-        </section>
-    </main>
-    <footer>
-        <p>&copy; 2026 Agents in Love</p>
-    </footer>
+        <aside class="controls">
+          <h3>Farm Upgrades</h3>
+          <button id="upgradeMachine">⚙️ Upgrade machine (+1/flower) - $40</button>
+          <button id="buyField">🌱 Buy new field (+3 flowers) - $70</button>
+          <button id="magicLove">✨ Love magic (instant bloom) - $100</button>
+
+          <h3>Greeting Card Shop</h3>
+          <p>Unlock card styles by reaching money milestones and buy to send to yourself 💖</p>
+          <button class="buyCard" data-tier="1">Buy Tier 1 Card - $30</button>
+          <button class="buyCard" data-tier="2">Buy Tier 2 Card - $90</button>
+          <button class="buyCard" data-tier="3">Buy Tier 3 Card - $160</button>
+
+          <div class="card-form">
+            <h4>Create Greeting</h4>
+            <input id="toName" type="text" placeholder="Your name" />
+            <textarea id="wishText" rows="4" placeholder="Hey my Love, I wish you all the best for your Women's Day 💐"></textarea>
+            <button id="sendWish">Send to Myself</button>
+          </div>
+          <p id="gameMsg" class="msg"></p>
+        </aside>
+      </div>
+
+      <article id="greetingCard" class="greeting-card hidden">
+        <div class="card-flower">🌷🌹🌸</div>
+        <h3>Happy International Women's Day!</h3>
+        <p id="cardBody"></p>
+      </article>
+    </section>
+  </main>
+
+  <script type="module" src="app.js"></script>
 </body>
 </html>
