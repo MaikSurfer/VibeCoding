@@ -1,0 +1,121 @@
+:root {
+  --pink: #ff4fa3;
+  --lavender: #b483ff;
+  --sun: #ffd45f;
+  --mint: #8fffd1;
+  --deep: #4a1f6b;
+  --cream: #fff7fc;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: "Quicksand", sans-serif;
+  color: var(--deep);
+  min-height: 100vh;
+  background: linear-gradient(140deg, #ffd3eb, #c6b6ff 40%, #b7ffe0);
+  overflow-x: hidden;
+}
+
+.bg-hearts {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.6) 4px, transparent 4px),
+    radial-gradient(circle at 75% 60%, rgba(255, 255, 255, 0.5) 6px, transparent 6px),
+    radial-gradient(circle at 30% 80%, rgba(255, 255, 255, 0.4) 5px, transparent 5px);
+  opacity: 0.6;
+}
+
+.app-header {
+  text-align: center;
+  padding: 1rem;
+  font-family: "Baloo 2", cursive;
+}
+
+h1 { margin: 0; font-size: 2.4rem; }
+.layout { width: min(1200px, 94vw); margin: 0 auto 2rem; }
+.panel {
+  background: rgba(255, 255, 255, 0.72);
+  border: 2px solid rgba(255,255,255,0.8);
+  border-radius: 18px;
+  backdrop-filter: blur(6px);
+  padding: 1rem;
+  box-shadow: 0 15px 35px rgba(74, 31, 107, 0.18);
+}
+.hidden { display: none; }
+
+.auth-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+input, textarea, button {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid #e8c3ff;
+  padding: 0.65rem;
+  margin: 0.35rem 0;
+  font-family: inherit;
+}
+
+button {
+  border: none;
+  background: linear-gradient(90deg, var(--pink), var(--lavender));
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .15s ease;
+}
+button:hover { transform: translateY(-2px); }
+
+.msg { min-height: 1.1rem; font-weight: 700; color: #8d2dbf; }
+.status-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  background: #fff;
+  padding: 0.65rem;
+  border-radius: 10px;
+}
+.game-grid {
+  display: grid;
+  grid-template-columns: 1.8fr 1fr;
+  gap: 1rem;
+}
+
+.canvas-wrap {
+  background: #ffffffbf;
+  border-radius: 14px;
+  padding: 0.5rem;
+}
+
+#farm3d {
+  width: 100%;
+  min-height: 420px;
+  display: block;
+  border-radius: 12px;
+}
+.hint { text-align: center; margin: 0.5rem 0 0; }
+.controls h3 { margin-bottom: .45rem; }
+.card-form { margin-top: 0.7rem; }
+.greeting-card {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 14px;
+  background: linear-gradient(120deg, #fff0fa, #fdf7d5);
+  border: 2px dashed #ff88c4;
+  text-align: center;
+}
+.card-flower { font-size: 2rem; }
+
+.tier-1 { background: linear-gradient(120deg, #fff0fa, #fdf7d5); }
+.tier-2 { background: linear-gradient(120deg, #f0f8ff, #ffe6ff); border-color: #a679ff; }
+.tier-3 { background: linear-gradient(120deg, #ffe9d1, #f4ddff); border-color: #ff6b8e; box-shadow: 0 0 20px rgba(255,107,142,0.35); }
+
+@media (max-width: 900px) {
+  .game-grid { grid-template-columns: 1fr; }
+  #farm3d { min-height: 320px; }
+}
